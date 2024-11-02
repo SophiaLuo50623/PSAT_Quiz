@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
 import axios from 'axios';
+import Cookies from 'js-cookie';
 
-async function getNewQuestion(setStimulus, setStem, setOption1, setOption2, setOption3, setOption4, setAns, ind) {
+async function getNewQuestion(setStimulus, setStem, setOption1, setOption2, setOption3, setOption4, setAns, ind, setDiff) {
     try {
         // First request: Get the list of questions
         const questionListResponse = await axios.post('https://qbank-api.collegeboard.org/msreportingquestionbank-prod/questionbank/digital/get-questions',
@@ -27,7 +28,7 @@ async function getNewQuestion(setStimulus, setStem, setOption1, setOption2, setO
             return;
         }
         const externalId = questionList[ind].external_id;  // You could also pick a random one or let the user choose
-
+        setDiff(questionList[ind].difficulty)
         // Second request: Get the full question details using external_id
         const questionDetailResponse = await axios.post('https://qbank-api.collegeboard.org/msreportingquestionbank-prod/questionbank/digital/get-question',
             JSON.stringify({ "external_id": externalId }),
@@ -49,7 +50,6 @@ async function getNewQuestion(setStimulus, setStem, setOption1, setOption2, setO
         setOption3({ text: `<p class='mr-2'>C. </p>${questionData.answerOptions[2].content}`, state: "n" });
         setOption4({ text: `<p class='mr-2'>D. </p>${questionData.answerOptions[3].content}`, state: "n" });
         setAns(questionData.correct_answer[0])
-
     } catch (error) {
         console.error("Error fetching question:", error);
     }
@@ -64,15 +64,23 @@ function App() {
     const [option4, setOption4] = useState({ text: "Loading...", state: "n" });
     const [clicked, setClicked] = useState(false);
     const [ans, setAns] = useState(null);
-    const [ind, setInd] = useState(0);
+    const [ind, setInd] = useState(parseInt(Cookies.get('ind') || '0', 10));
+    const [corr, setCorr] = useState(parseInt(Cookies.get('corr') || '0', 10));
+    const [option, setOption]=useState(Cookies.get('option') || null);
+    const [diff, setdiff]=useState('null')
 
     useEffect(() => {
-        getNewQuestion(setStimulus, setStem, setOption1, setOption2, setOption3, setOption4, setAns, ind);
-    }, [ind]); // Empty dependency array to run only once on mount
-
-    const handleClick = (option) => () => {
-        if (!clicked) {
-            setClicked(true);
+        setStimulus('Loading...');
+        setStem('Loading...');
+        setOption1({text: 'Loading...', state: option1.state});
+        setOption2({text: 'Loading...', state: option2.state});
+        setOption3({text: 'Loading...', state: option3.state});
+        setOption4({text: 'Loading...', state: option4.state});
+        getNewQuestion(setStimulus, setStem, setOption1, setOption2, setOption3, setOption4, setAns, ind, setdiff);
+    }, [ind]);
+    const func=()=>{
+        if (option) {
+            Cookies.set('option', option)
             switch (option) {
                 case 'A':
                     setOption1({text: option1.text, state:'i'});
@@ -89,18 +97,32 @@ function App() {
             }
             switch (ans) {
                 case 'A':
-                    setOption1({text: option1.text, state:'c'});
+                    setOption1({text: option1.text, state: 'c'});
                     break;
                 case 'B':
-                    setOption2({text: option2.text, state:'c'});
+                    setOption2({text: option2.text, state: 'c'});
                     break;
                 case 'C':
-                    setOption3({text: option3.text, state:'c'});
+                    setOption3({text: option3.text, state: 'c'});
                     break;
                 case 'D':
-                    setOption4({text: option4.text, state:'c'});
+                    setOption4({text: option4.text, state: 'c'});
                     break;
             }
+        }
+    }
+    useEffect(func, [option])
+    const handleClick = (option_) => () => {
+        if (!clicked) {
+            if (option===ans) {
+                Cookies.set('corr', corr+1);
+                setCorr(corr+1);
+            }
+            setOption(option_);
+            console.log(option_);
+            console.log(option);
+            func();
+            setClicked(true);
         }
     };
 
@@ -114,13 +136,22 @@ function App() {
                 return 'bg-blue-700 hover:bg-blue-900';
         }
     };
-    const next=function () {
-        setInd(ind+1);
-    }
+    const next = () => {
+        setClicked(false);
+        if (clicked) {
+            const newInd = ind + 1;
+            setInd(newInd);
+            setOption(null);
+            Cookies.set('ind', newInd);
+        }
+    };
+
     return (
         <div className="m-20">
             <div className="m-20">
+                <p>{diff}</p>
                 <p>{ind}</p>
+                <p>{corr}/{clicked ? ind+1 : ind}</p>
                 <p className="font-black text-gray-500">Question:</p>
                 <div dangerouslySetInnerHTML={{ __html: stimulus }} className="m-8"></div>
                 <div dangerouslySetInnerHTML={{ __html: question }} className="my-4"></div>

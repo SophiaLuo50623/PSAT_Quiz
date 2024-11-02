@@ -68,6 +68,7 @@ function App() {
     const [corr, setCorr] = useState(parseInt(Cookies.get('corr') || '0', 10));
     const [option, setOption]=useState(Cookies.get('option') || null);
     const [diff, setdiff]=useState('null')
+    const [streak, setStreak] = useState(parseInt(Cookies.get('streak') || '0', 10));
 
     useEffect(() => {
         setStimulus('Loading...');
@@ -94,6 +95,8 @@ function App() {
                 case 'D':
                     setOption4({text: option4.text, state:'i'});
                     break;
+                default:
+                    break;
             }
             switch (ans) {
                 case 'A':
@@ -108,6 +111,8 @@ function App() {
                 case 'D':
                     setOption4({text: option4.text, state: 'c'});
                     break;
+                default:
+                    break;
             }
         }
     }
@@ -117,10 +122,11 @@ function App() {
             if (option===ans) {
                 Cookies.set('corr', corr+1);
                 setCorr(corr+1);
+                setStreak(streak+1);
+            } else {
+                setStreak(0);
             }
             setOption(option_);
-            console.log(option_);
-            console.log(option);
             func();
             setClicked(true);
         }
@@ -147,33 +153,34 @@ function App() {
     };
 
     return (
-        <div className="m-20">
+        <div>
             <div className="m-20">
-                <p>{diff}</p>
-                <p>{ind}</p>
-                <p>{corr}/{clicked ? ind+1 : ind}</p>
-                <p className="font-black text-gray-500">Question:</p>
-                <div dangerouslySetInnerHTML={{ __html: stimulus }} className="m-8"></div>
-                <div dangerouslySetInnerHTML={{ __html: question }} className="my-4"></div>
+                <p className='text-right font-black text-gray-700'>Streak: {streak}</p>
+                <p className='text-right font-black text-gray-700'>Difficulty: {diff}</p>
+                <p className='text-right font-black text-gray-700'>Question {ind + 1}</p>
+                <p className='text-right font-black text-gray-700'>{corr}/{clicked ? ind + 1 : ind} correct</p>
+                <p className="font-black text-gray-700">Question:</p>
+                <div dangerouslySetInnerHTML={{__html: stimulus}} className="my-8"></div>
+                <div dangerouslySetInnerHTML={{__html: question}} className="my-12"></div>
                 <div className="flex flex-col my-4">
                     <button
                         className={`border-2 border-black rounded p-2 text-white shadow-lg my-4 hover:shadow-inner text-left flex flex-row ${getButtonColor(option1.state)}`}
-                        dangerouslySetInnerHTML={{ __html: option1.text }}
+                        dangerouslySetInnerHTML={{__html: option1.text}}
                         onClick={handleClick("A")}
                     />
                     <button
                         className={`border-2 border-black rounded p-2 text-white shadow-lg my-4 hover:shadow-inner text-left flex flex-row ${getButtonColor(option2.state)}`}
-                        dangerouslySetInnerHTML={{ __html: option2.text }}
+                        dangerouslySetInnerHTML={{__html: option2.text}}
                         onClick={handleClick("B")}
                     />
                     <button
                         className={`border-2 border-black rounded p-2 text-white shadow-lg my-4 hover:shadow-inner text-left flex flex-row ${getButtonColor(option3.state)}`}
-                        dangerouslySetInnerHTML={{ __html: option3.text }}
+                        dangerouslySetInnerHTML={{__html: option3.text}}
                         onClick={handleClick("C")}
                     />
                     <button
                         className={`border-2 border-black rounded p-2 text-white shadow-lg my-4 hover:shadow-inner text-left flex flex-row ${getButtonColor(option4.state)}`}
-                        dangerouslySetInnerHTML={{ __html: option4.text }}
+                        dangerouslySetInnerHTML={{__html: option4.text}}
                         onClick={handleClick("D")}
                     />
                 </div>

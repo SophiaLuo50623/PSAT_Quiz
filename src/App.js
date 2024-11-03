@@ -78,7 +78,7 @@ function App() {
         setOption3({text: 'Loading...', state: option3.state});
         setOption4({text: 'Loading...', state: option4.state});
         getNewQuestion(setStimulus, setStem, setOption1, setOption2, setOption3, setOption4, setAns, ind, setdiff);
-    }, [ind]);
+    }, [ind, option1.state, option2.state, option3.state, option4.state]);
     const func=()=>{
         if (option) {
             Cookies.set('option', option)
@@ -116,10 +116,11 @@ function App() {
             }
         }
     }
-    useEffect(func, [option])
+    useEffect(func, [option, option1.text, option2.text, option3.text, option4.text, ans]);
     const handleClick = (option_) => () => {
         if (!clicked) {
-            if (option===ans) {
+            if (option_===ans) {
+                console.log('correct');
                 Cookies.set('corr', corr+1);
                 setCorr(corr+1);
                 setStreak(streak+1);

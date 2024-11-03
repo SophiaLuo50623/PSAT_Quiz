@@ -49,7 +49,7 @@ async function getNewQuestion(setStimulus, setStem, setOption1, setOption2, setO
         setOption2({ text: `<p class='mr-2'>B. </p>${questionData.answerOptions[1].content}`, state: "n" });
         setOption3({ text: `<p class='mr-2'>C. </p>${questionData.answerOptions[2].content}`, state: "n" });
         setOption4({ text: `<p class='mr-2'>D. </p>${questionData.answerOptions[3].content}`, state: "n" });
-        setAns(questionData.correct_answer[0])
+        setAns(questionData.correct_answer[0]);
     } catch (error) {
         console.error("Error fetching question:", error);
     }

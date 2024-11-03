@@ -184,7 +184,8 @@ function App() {
                         onClick={handleClick("D")}
                     />
                 </div>
-                <button onClick={next}>Next</button>
+                {clicked ? <button onClick={next}
+                                   className='bg-gray-700 text-white p-4 rounded text-right hover:bg-gray-800'>Next</button> : null}
             </div>
         </div>
     );

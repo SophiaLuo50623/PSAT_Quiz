@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import QuestionModal from './QuestionModal';
 
 async function getNewQuestion(setStimulus, setStem, setOption1, setOption2, setOption3, setOption4, setAns, ind, setDiff) {
     try {
@@ -153,6 +154,7 @@ function App() {
         }
     };
 
+    
     return (
         <div>
             <div className="m-20">
